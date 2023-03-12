@@ -5,8 +5,16 @@ import glob
 import pandas as pd
 
 
+# Folder paths are hard coded
+# schemas.json path is also hard coded
+# Modularization with reusability
+# Exercise: Similar program file for nyse-converter
+  # Update app.py with core logic of file format conversion for nyse data
+  # Make sure to validate to see if it is working as per the expectations or not
+  # Changes are committed and pushed to remote repository
 def get_columns(ds):
-    with open('data/retail_db/schemas.json') as fp:
+    schemas_file_path = os.environ.setdefault('SCHEMAS_FILE_PATH', 'data/retail_db/schemas.json')
+    with open(schemas_file_path) as fp:
         schemas = json.load(fp)
     try:
         schema = schemas.get(ds)
@@ -21,14 +29,16 @@ def get_columns(ds):
 
 
 def main():
-    for path in glob.glob('data/retail_db/*'):
+    src_base_dir = os.environ['SRC_BASE_DIR']
+    tgt_base_dir = os.environ['TGT_BASE_DIR']
+    for path in glob.glob(f'{src_base_dir}/*'):
         if os.path.isdir(path):
             ds = os.path.split(path)[1]
             for file in glob.glob(f'{path}/part*'):
                 df = pd.read_csv(file, names=get_columns(ds))
-                os.makedirs(f'data/retail_demo/{ds}', exist_ok=True)
+                os.makedirs(f'{tgt_base_dir}/{ds}', exist_ok=True)
                 df.to_json(
-                    f'data/retail_demo/{ds}/part-{str(uuid.uuid1())}.json',
+                    f'{tgt_base_dir}/{ds}/part-{str(uuid.uuid1())}.json',
                     orient='records',
                     lines=True
                 )

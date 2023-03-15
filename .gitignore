@@ -2,3 +2,6 @@ ffc-venv
 __pycache__
 data
 logs
+build
+dist
+ffconverter.egg-info
